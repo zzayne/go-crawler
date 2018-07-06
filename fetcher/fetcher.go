@@ -1,23 +1,35 @@
 package fetcher
 
 import (
-	"bufio"
-	"io/ioutil"
+	"log"
 	"net/http"
+	"time"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
+var rateLimiter = time.Tick(1 * time.Second)
+
 // Fetch ...
-func Fetch(url string) (content []byte, err error) {
-	resp, err := http.Get(url)
+func Fetch(url string) (doc *goquery.Document, err error) {
+	<-rateLimiter
+
+	res, err := http.Get(url)
 	if err != nil {
 		return nil, err
 	}
 
-	defer resp.Body.Close()
+	defer res.Body.Close()
 
-	reader := bufio.NewReader(resp.Body)
+	if res.StatusCode != 200 {
+		log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
+	}
 
-	content, err = ioutil.ReadAll(reader)
+	// Load the HTML document
+	doc, err = goquery.NewDocumentFromReader(res.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	return content, err
+	return doc, err
 }

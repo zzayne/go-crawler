@@ -1,26 +1,17 @@
 package main
 
 import (
-	"fmt"
-	"regexp"
-
-	"github.com/zzayne/zayne-crawler/fetcher"
+	"github.com/zzayne/zayne-crawler/engine"
+	parser "github.com/zzayne/zayne-crawler/parser/douban"
 )
 
 func main() {
-	contents, err := fetcher.Fetch("https://www.douban.com/location/shenzhen/events/week-all")
-	if err != nil {
-		panic(err)
-	}
 
-	parser(contents)
-}
-
-func parser(contents []byte) {
-	activityRe := `<span itemprop="summary">([^>]+)</span>`
-	regx := regexp.MustCompile(activityRe)
-	matches := regx.FindAllSubmatch(contents, -1)
-	for _, m := range matches {
-		fmt.Printf("sumarry title:%s\n", string(m[1]))
+	e := engine.SimpleEngine{}
+	req := engine.Request{
+		URL:       "https://www.douban.com/location/china/",
+		ParseFunc: parser.AreaListParser,
 	}
+	
+	e.Run(req)
 }
