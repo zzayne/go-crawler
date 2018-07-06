@@ -2,6 +2,7 @@ package engine
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/zzayne/zayne-crawler/fetcher"
 )
@@ -9,9 +10,10 @@ import (
 //SimpleEngine 初始解析入口
 type SimpleEngine struct{}
 
+var requestList []Request
+
 //Run 启动解析引擎
 func (e *SimpleEngine) Run(req Request) {
-	var requestList []Request
 
 	requestList = append(requestList, req)
 	count := 0
@@ -21,16 +23,16 @@ func (e *SimpleEngine) Run(req Request) {
 
 		doc, err := fetcher.Fetch(req.URL)
 		if err != nil {
-			panic(err)
+			log.Printf(" fetch url error:%s\n", req.URL)
 		}
 
 		result, err := req.ParseFunc(doc)
 
 		requestList = requestList[1:]
 
-		if err != nil {
-			panic(err)
-		}
+		// if err != nil {
+		// 	panic(err)
+		// }
 
 		for _, m := range result {
 			requestList = append(requestList, m)

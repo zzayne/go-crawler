@@ -8,10 +8,11 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-var rateLimiter = time.Tick(1 * time.Second)
+var rateLimiter = time.Tick(2000 * time.Millisecond)
 
 // Fetch ...
 func Fetch(url string) (doc *goquery.Document, err error) {
+
 	<-rateLimiter
 
 	res, err := http.Get(url)
