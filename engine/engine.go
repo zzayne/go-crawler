@@ -1,7 +1,6 @@
 package engine
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/zzayne/zayne-crawler/fetcher"
@@ -10,41 +9,32 @@ import (
 //SimpleEngine 初始解析入口
 type SimpleEngine struct{}
 
-var requestList []Request
+var requests []Request
 
 //Run 启动解析引擎
-func (e *SimpleEngine) Run(req Request) {
-
-	requestList = append(requestList, req)
+func (e *SimpleEngine) Run(reqs ...Request) {
+	for _, r := range reqs {
+		requests = append(requests, r)
+	}
 	count := 0
 	for {
-		var req = requestList[0]
-		fmt.Printf("fetch url # %d:%s\n", count, req.URL)
+		if len(requests) > 0 {
+			var req = requests[0]
+			requests = requests[1:]
 
-		doc, err := fetcher.Fetch(req.URL)
-		if err != nil {
-			log.Printf(" fetch url error:%s\n", req.URL)
-		}
+			doc, err := fetcher.Fetch(req.URL)
+			if err != nil {
+				log.Printf(" fetch url error:%s\n", req.URL)
+			}
 
-		result, err := req.ParseFunc(doc)
+			result, err := req.ParseFunc(doc)
 
-		requestList = requestList[1:]
+			requests = append(requests, result.Requests...)
 
-		// if err != nil {
-		// 	panic(err)
-		// }
-
-		for _, m := range result {
-			requestList = append(requestList, m)
-		}
-
-		if len(requestList) == 0 {
-			break
+			for _, item := range result.Items {
+				log.Printf("got item # %d:%v\n", count, item)
+				count++
+			}
 		}
 	}
-
-}
-
-func worker(req Request) {
-
 }

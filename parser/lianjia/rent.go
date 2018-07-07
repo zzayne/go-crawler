@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"errors"
 	"strconv"
 
 	"github.com/PuerkitoBio/goquery"
@@ -9,10 +8,9 @@ import (
 	"github.com/zzayne/zayne-crawler/model"
 )
 
-const pageRe = `https://sz.lianjia.com/zufang/pg([0-9]+)`
-
 //RentParser ...
-func RentParser(doc *goquery.Document) (req []engine.Request, err error) {
+func RentParser(doc *goquery.Document) (engine.RequestResult, error) {
+	var result engine.RequestResult
 
 	doc.Find(".house-lst li .info-panel").Each(func(i int, s *goquery.Selection) {
 		var house model.House
@@ -33,12 +31,8 @@ func RentParser(doc *goquery.Document) (req []engine.Request, err error) {
 		if view, err := strconv.Atoi(s.Find(".col-2 .num").Text()); err == nil {
 			house.View = view
 		}
+		result.Items = append(result.Items, house)
 	})
-	if doc.Length() > 0 {
-		// regx := regexp.MustCompile(pageRe)
-		// matches := regx.FindAllSubmatch([]byte(), -1)
 
-	}
-
-	return nil, errors.New("end")
+	return result, nil
 }
