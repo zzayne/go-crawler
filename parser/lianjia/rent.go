@@ -4,8 +4,8 @@ import (
 	"strconv"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/zzayne/zayne-crawler/engine"
-	"github.com/zzayne/zayne-crawler/model"
+	"github.com/zzayne/go-crawler/engine"
+	"github.com/zzayne/go-crawler/model"
 )
 
 //RentParser ...
