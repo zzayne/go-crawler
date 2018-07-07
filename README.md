@@ -1,4 +1,4 @@
-# go-crawler 并发式网站爬虫
+a# go-crawler 并发式网站爬虫
 
 ## 介绍
 
@@ -14,7 +14,7 @@
 原课程讲解了一个分布式的爬虫项目实践过程，十分有参考价值。所以本项目的实现也大体参照该课程的结构，有以下关键组成：
 
 - [x] Engine，爬虫任务下发和结果处理
-- [ ] Scheduler，任务调度管理
+- [x] Scheduler，任务队列调度管理
 - [x] Fetcher, 获取请求路径的html内容
 - [x] Model，保存内容的实体
 - [x] Parser，fetcher得到html解析器，解析后返回数据和下一步请求信息。
@@ -38,9 +38,11 @@
 
 在`$GOPATH/src/github.com/zzayne`下存放该项目，可运行查看结果输出。如果`Elasticsearch`运行在`9200`默认端口，可`GET`请求`http://localhost:9200/house_info/rent/_search?`后得到json数据。
 
+![image](https://note.youdao.com/yws/public/resource/d4aea1ddaafd92526a8e7ff70a3586ab/xmlnote/07B258CB79AB4E8A8EC854B4479F8EB0/4129)
 
-## 联系我
 
-thezhangwen@outlook.com
+## 其他
 
-欢迎一起交流学习。
+本项目仅为学习实践项目，他用产生一切后果与本人无关。我的邮箱：thezhangwen@outlook.com，欢迎一起交流学习。
+
+

@@ -4,42 +4,49 @@ import (
 	"log"
 
 	"github.com/zzayne/go-crawler/fetcher"
-	"github.com/zzayne/go-crawler/persist"
 )
 
-//SimpleEngine 初始解析入口
-type SimpleEngine struct{}
+//Engine 初始解析入口
+type Engine struct {
+	Scheduler   Scheduler
+	WorkerCount int
+	ItemChan    chan Item
+}
+
+// Scheduler ...
+type Scheduler interface {
+	ReadyNotifier
+	WorkChan() chan Request
+	Run()
+	Submit(Request)
+}
+
+//ReadyNotifier ...
+type ReadyNotifier interface {
+	WorkerReady(chan Request)
+}
 
 //Run 启动解析引擎
-func (e *SimpleEngine) Run(reqs ...Request) {
-	workChan := make(chan Request)
+func (e *Engine) Run(reqs ...Request) {
 	resultChan := make(chan ParseResult)
 
-	for i := 0; i < 10; i++ {
-		createWorker(workChan, resultChan)
+	e.Scheduler.Run()
+	for i := 0; i < e.WorkerCount; i++ {
+		createWorker(e.Scheduler.WorkChan(), resultChan, e.Scheduler)
 	}
 
-	count := 0
-
 	for _, r := range reqs {
-		go func() {
-			workChan <- r
-		}()
+		e.Scheduler.Submit(r)
 	}
 
 	for {
 		result := <-resultChan
-
 		for _, item := range result.Items {
-			log.Printf("got item # %d:%v\n", count, item)
-			persist.ItemSave(item)
-			count++
+			e.ItemChan <- item
 		}
 
 		for _, r := range result.Requests {
-			go func() {
-				workChan <- r
-			}()
+			e.Scheduler.Submit(r)
 		}
 	}
 
@@ -50,20 +57,20 @@ func worker(r Request) (ParseResult, error) {
 	doc, err := fetcher.Fetch(r.URL)
 	if err != nil {
 		log.Printf(" fetch url error:%s\n", r.URL)
+		return ParseResult{}, err
 	}
 	return r.ParseFunc(doc)
 }
 
-func createWorker(in chan Request, out chan ParseResult) {
+func createWorker(in chan Request, out chan ParseResult, noticer ReadyNotifier) {
 	go func() {
 		for {
+			noticer.WorkerReady(in)
 			req := <-in
-
 			result, err := worker(req)
 			if err != nil {
 				continue
 			}
-			log.Println(result)
 			out <- result
 		}
 	}()

@@ -13,12 +13,13 @@ type Request struct {
 //RequestResult 解析结果
 type ParseResult struct {
 	Requests []Request
-	Items    []interface{}
+	Items    []Item
 }
 
 //Item 数据实体
 type Item struct {
 	ID      string
 	URL     string
+	Type    string
 	Payload interface{}
 }

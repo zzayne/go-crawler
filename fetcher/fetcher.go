@@ -1,6 +1,7 @@
 package fetcher
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -8,7 +9,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-var rateLimiter = time.Tick(500 * time.Millisecond)
+var rateLimiter = time.Tick(200 * time.Millisecond)
 
 // Fetch 获取对应url的内容，输出文档供解析器解析
 func Fetch(url string) (doc *goquery.Document, err error) {
@@ -33,7 +34,7 @@ func Fetch(url string) (doc *goquery.Document, err error) {
 	defer res.Body.Close()
 
 	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
+		return nil, fmt.Errorf("status code error: %d %s", res.StatusCode, res.Status)
 	}
 
 	// Load the HTML document

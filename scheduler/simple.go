@@ -2,7 +2,7 @@ package scheduler
 
 import "github.com/zzayne/go-crawler/engine"
 
-//SimpleScheduler
+//SimpleScheduler 每个worker公用一个chanel来接受数据，其实没有进行调度
 type SimpleScheduler struct {
 	workChan chan engine.Request
 }
