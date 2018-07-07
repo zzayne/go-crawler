@@ -4,15 +4,15 @@ import (
 	"log"
 
 	"github.com/zzayne/zayne-crawler/fetcher"
+	"github.com/zzayne/zayne-crawler/persist"
 )
 
 //SimpleEngine 初始解析入口
 type SimpleEngine struct{}
 
-var requests []Request
-
 //Run 启动解析引擎
 func (e *SimpleEngine) Run(reqs ...Request) {
+	var requests []Request
 	for _, r := range reqs {
 		requests = append(requests, r)
 	}
@@ -22,19 +22,26 @@ func (e *SimpleEngine) Run(reqs ...Request) {
 			var req = requests[0]
 			requests = requests[1:]
 
-			doc, err := fetcher.Fetch(req.URL)
+			result, err := worker(req)
+
 			if err != nil {
-				log.Printf(" fetch url error:%s\n", req.URL)
+				continue
 			}
 
-			result, err := req.ParseFunc(doc)
-
 			requests = append(requests, result.Requests...)
-
 			for _, item := range result.Items {
-				log.Printf("got item # %d:%v\n", count, item)
+				//log.Printf("got item # %d:%v\n", count, item)
+				persist.ItemSave(item)
 				count++
 			}
 		}
 	}
+}
+
+func worker(r Request) (ParseResult, error) {
+	doc, err := fetcher.Fetch(r.URL)
+	if err != nil {
+		log.Printf(" fetch url error:%s\n", r.URL)
+	}
+	return r.ParseFunc(doc)
 }
