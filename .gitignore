@@ -1,2 +1,4 @@
 debug
-parser/douban
+/.idea
+/parser/douban
+go-crawler
